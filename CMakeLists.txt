@@ -12,6 +12,7 @@ option(BUILD_WITH_STATIC_CRT "Use CRT Static Runtime Library on Visual Studio" O
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
 set(INSTALL_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Installation directory for headers")
+set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/cmake" CACHE PATH "Installation directory for cmake file")
 set(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}/share/man" CACHE PATH "Installation directory for manual pages")
 set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/share/pkgconfig" CACHE PATH "Installation directory for pkgconfig (.pc) files")
 
@@ -227,10 +228,26 @@ elseif(BUILD_SHARED_LIBS AND WIN32)
 endif()
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
+    include(CMakePackageConfigHelpers)
+
+    set(INSTALL_INCLUDE_DIR include)
+    configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/package-config.cmakein" "${INSTALL_CMAKE_DIR}/zlib-config.cmake"
+                                  INSTALL_DESTINATION cmake
+                                  PATH_VARS INSTALL_INC_DIR)
+       
+    write_basic_package_version_file("${INSTALL_CMAKE_DIR}/zlib-config-version.cmake" VERSION ${VERSION} COMPATIBILITY SameMajorVersion)
+
+    install(FILES "${INSTALL_CMAKE_DIR}/zlib-config.cmake" "${INSTALL_CMAKE_DIR}/zlib-config-version.cmake"
+        DESTINATION "${INSTALL_CMAKE_DIR}")
+
     install(TARGETS zlib zlibstatic
+        EXPORT zlib-targets
         RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+        LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+        INCLUDES DESTINATION "${INSTALL_INC_DIR}")
+    install(EXPORT zlib-targets
+        DESTINATION "${INSTALL_CMAKE_DIR}")
 endif()
 if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
     install(FILES ${ZLIB_PUBLIC_HDRS} DESTINATION "${INSTALL_INC_DIR}")
