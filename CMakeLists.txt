@@ -227,13 +227,25 @@ elseif(BUILD_SHARED_LIBS AND WIN32)
 endif()
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
+    include(CMakePackageConfigHelpers)
+
+    set(INSTALL_INCLUDE_DIR include)
+    configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/package-config.cmakein" "${INSTALL_CMAKE_DIR}/zlib-config.cmake"
+                                  INSTALL_DESTINATION cmake
+                                  PATH_VARS INSTALL_INC_DIR)
+       
+    write_basic_package_version_file("${INSTALL_CMAKE_DIR}/zlib-config-version.cmake" VERSION ${VERSION} COMPATIBILITY SameMajorVersion)
+
+    install(FILES "${INSTALL_CMAKE_DIR}/zlib-config.cmake" "${INSTALL_CMAKE_DIR}/zlib-config-version.cmake"
+        DESTINATION "${INSTALL_CMAKE_DIR}")
+
     install(TARGETS zlib zlibstatic
-        EXPORT zlib-export
+        EXPORT zlib-targets
         RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
-    install(EXPORT zlib-export
-        FILE zlib-config.cmake
+        LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+        INCLUDES DESTINATION "${INSTALL_INC_DIR}")
+    install(EXPORT zlib-targets
         DESTINATION "${INSTALL_CMAKE_DIR}")
 endif()
 if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
