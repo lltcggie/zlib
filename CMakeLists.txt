@@ -7,6 +7,7 @@ set(VERSION "1.2.8")
 
 option(ASM686 "Enable building i686 assembly implementation")
 option(AMD64 "Enable building amd64 assembly implementation")
+option(BUILD_WITH_STATIC_CRT "Use CRT Static Runtime Library on Visual Studio" OFF)
 
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
